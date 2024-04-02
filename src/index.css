@@ -4,14 +4,14 @@
 
 @layer components {
   .input {
-    @apply h-10 rounded px-4 outline-none border border-zinc-400 text-sm focus:border-black;
+    @apply h-10 rounded px-4 outline-none border border-zinc-400 text-sm focus:border-black w-full;
   }
 
   .textarea {
-    @apply rounded py-2.5 px-4 outline-none border border-zinc-400 text-sm focus:border-black resize-none;
+    @apply rounded py-2.5 px-4 outline-none border border-zinc-400 text-sm focus:border-black resize-none w-full;
   }
 
   .button {
-    @apply bg-black h-10 rounded text-white text-sm;
+    @apply bg-black h-10 rounded text-white text-sm w-full disabled:opacity-50;
   }
 }

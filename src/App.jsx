@@ -1,12 +1,34 @@
-import { Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { stepperValidation } from "./validations/stepper-validation";
+import classNames from "classnames";
 
 function App() {
+  const steps = [
+    {
+      step: 1,
+      title: "Kisisel Bilgiler",
+    },
+    {
+      step: 2,
+      title: "Yas ve Calisma",
+    },
+    {
+      step: 3,
+      title: "Hakkinda",
+    },
+    {
+      step: 4,
+      title: "WWW",
+    },
+  ];
+
   return (
     <div>
       <Formik
+        validationSchema={stepperValidation}
         initialValues={{
           step: 1,
-          lastStep: 3,
+          lastStep: 4,
 
           //step1
           name: "",
@@ -18,12 +40,15 @@ function App() {
 
           //step3
           about: "",
+
+          //step4
+          blog: "",
         }}
         onSubmit={(values, actions) => {
           console.log("values", values);
         }}
       >
-        {({ values, setFieldValue }) => {
+        {({ values, setFieldValue, isValid, dirty }) => {
           const prevHandle = () => {
             setFieldValue("step", values.step - 1);
           };
@@ -32,39 +57,137 @@ function App() {
             setFieldValue("step", values.step + 1);
           };
 
+          const stepHandle = (step) => {
+            setFieldValue("step", step);
+          };
+
           return (
             <Form className="w-[500px] py-4 mx-auto">
+              <header className="grid grid-cols-4 gap-x-2.5 border border-zinc-400 rounded-md mb-4">
+                {/* {new Array(values.lastStep).fill("").map((_, key) => (
+                  <button key={key}>{key + 1}. Step</button>
+                ))} */}
+                {steps.map((step) => (
+                  <button
+                    type="button"
+                    onClick={() => stepHandle(step.step)}
+                    disabled={values.step < step.step}
+                    className="flex flex-col items-center justify-center py-2.5"
+                    key={step.step}
+                  >
+                    <div
+                      className={classNames(
+                        "w-10 h-10 mb-2.5 rounded-full flex items-center justify-center bg-zinc-100",
+                        {
+                          "bg-blue-100 text-blue-600":
+                            values.step === step.step,
+
+                          "bg-green-100 text-green-600":
+                            values.step > step.step,
+
+                          "bg-zinc-100 text-zinc-700":
+                            values.step !== step.step,
+                        }
+                      )}
+                    >
+                      {values.step > step.step ? "✅" : step.step}
+                    </div>
+                    <div
+                      className={classNames("text-sm", {
+                        "text-blue-600": values.step === step.step,
+                        "!text-green-600": values.step > step.step,
+                        "text-zinc-600": values.step !== step.step,
+                      })}
+                    >
+                      {step.title}
+                    </div>
+                  </button>
+                ))}
+              </header>
+
               <header className="mb-4">
                 <h3 className="text-lg font-medium text-zinc-700">
-                  Adım {values.step}
+                  Step {values.step}
                 </h3>
               </header>
               {values.step === 1 && (
                 <div className="grid gap-2.5">
-                  <Field name="name" className="input" placeholder="Name" />
-                  <Field
-                    name="surname"
-                    className="input"
-                    placeholder="Surname"
-                  />
+                  <div>
+                    <Field name="name" className="input" placeholder="Name" />
+                    <ErrorMessage
+                      name="name"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Field
+                      name="surname"
+                      className="input"
+                      placeholder="Surname"
+                    />
+                    <ErrorMessage
+                      name="surname"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
                 </div>
               )}
 
               {values.step === 2 && (
                 <div className="grid gap-2.5">
-                  <Field name="age" className="input" placeholder="Age" />
-                  <Field name="job" className="input" placeholder="Job" />
+                  <div>
+                    <Field name="age" className="input" placeholder="Age" />
+                    <ErrorMessage
+                      name="age"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Field name="job" className="input" placeholder="Job" />
+                    <ErrorMessage
+                      name="job"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
                 </div>
               )}
 
               {values.step === 3 && (
                 <div className="grid gap-2.5">
-                  <Field
-                    name="about"
-                    component="textarea"
-                    className="textarea"
-                    placeholder="About"
-                  />
+                  <div>
+                    <Field
+                      name="about"
+                      component="textarea"
+                      className="textarea"
+                      placeholder="About"
+                    />
+                    <ErrorMessage
+                      name="about"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {values.step === 4 && (
+                <div className="grid gap-2.5">
+                  <div>
+                    <Field
+                      name="blog"
+                      className="input"
+                      placeholder="Blog URL"
+                    />
+                    <ErrorMessage
+                      name="blog"
+                      component="small"
+                      className="block text-xs text-red-600 mt-1"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -74,13 +197,19 @@ function App() {
                     Prev
                   </button>
                 )) || <div />}
-                {(values.step === values.lastStep && (
+                {values.step !== values.lastStep && (
+                  <button
+                    onClick={nextHandle}
+                    type="button"
+                    className="button"
+                    disabled={!isValid || !dirty}
+                  >
+                    Next
+                  </button>
+                )}
+                {values.step === values.lastStep && (
                   <button className="button" type="submit">
                     Submit
-                  </button>
-                )) || (
-                  <button onClick={nextHandle} type="button" className="button">
-                    Next
                   </button>
                 )}
               </div>
